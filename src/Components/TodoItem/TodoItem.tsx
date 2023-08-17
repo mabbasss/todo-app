@@ -1,40 +1,29 @@
 import React, { useState } from 'react';
-import { Stack, Label, IconButton, Dialog, DialogFooter, DefaultButton, PrimaryButton, DialogType,Checkbox } from '@fluentui/react';
+import { Stack, Label, IconButton,Checkbox, DialogType, IDialogContentProps } from '@fluentui/react';
+import CustomModal from '../CustomModal/CustomModal';
 
-function TodoItem(props: any) {
-    const [openDeleteModal, setOpenModal] = useState(true);
+interface TodoItemProps{
+    todo:Todo
+    deleteTodo:DeleteTodo
+    toggleTodo:ToggleTodo
+}
 
-    const deleteTodo = (id: number) => {
-        props.deleteTodo(id);
-        setOpenModal(true);
-    }
+const dialogContentProps:IDialogContentProps={type:DialogType.normal,title:"Delete",subText:"Are you sure you want to delete this item? This cannot be undone."}
 
-    const handleCheckBoxChange = (id:number)=>{
-      props.toggleTodo(id);
-    }
+function TodoItem({deleteTodo,todo,toggleTodo}: TodoItemProps) {
+
+const [openDeleteModal, setOpenModal] = useState(true);
+
 
     return (
       
         <Stack>
             <Stack horizontal verticalAlign="center" horizontalAlign="space-between">
-            <Checkbox checked={props.todo.complete} onChange={()=>handleCheckBoxChange(props.todo.id)}/>
-                <Label style={{ textDecoration: props.todo.complete ? 'line-through' : undefined }}>{props.todo.name}</Label>
+            <Checkbox checked={todo.complete} onChange={()=> toggleTodo(todo.id)}/>
+                <Label style={{ textDecoration: todo.complete ? 'line-through' : undefined }}>{todo.name}</Label>
                 <IconButton iconProps={{ iconName: 'trash' }} onClick={() => { setOpenModal(!openDeleteModal) }} />
             </Stack>
-            <Dialog
-                hidden={openDeleteModal}
-                dialogContentProps={{
-                    type: DialogType.normal,
-                    title: "Delete",
-                    subText:
-                        "Are you sure you want to delete this item? This cannot be undone."
-                }}
-            >
-                <DialogFooter>
-                    <PrimaryButton text="Yes" onClick={() => { deleteTodo(props.todo.id) }} />
-                    <DefaultButton text="No" onClick={() => { setOpenModal(true) }} />
-                </DialogFooter>
-            </Dialog>
+            <CustomModal openDeleteModal={openDeleteModal} setOpenModal={setOpenModal} todoId={todo.id} deleteTodoFuns={deleteTodo} dialogContentProps={dialogContentProps} ></CustomModal>
         </Stack>
     );
 }

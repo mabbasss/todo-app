@@ -1,32 +1,30 @@
-import React, { useState } from 'react';
+import React, {FormEvent, useState } from 'react';
 import { Stack, Label, PrimaryButton, TextField  } from "@fluentui/react";
 import TodoItem from '../TodoItem/TodoItem';
-import { ITodo } from '../../Interfaces/ITodo';
 
-function TodoList(props:any) {
+interface TodoListProps{
+    todos:Todo[]
+    addTodo:AddTodo
+    toggleTodo:ToggleTodo
+    deleteTodo:DeleteTodo
+}
+
+function TodoList(props:TodoListProps) {
 
 const [todoName, setTodoName] = useState("");
 
-const addTodo = () => {      
-    props.addTodo(todoName);
-    setTodoName("");
-}
-
-const setTodo = (e: any) =>{
-    setTodoName(e.target.value);
-}
 
     return (
         
-        <Stack gap={10} >
-            <Stack horizontal  gap={5}>
+        <Stack tokens={{childrenGap:10}} >
+            <Stack horizontal  tokens={{childrenGap:5}}>
                 <Stack.Item>
-                    <TextField placeholder="Add new item" value={todoName} onChange={setTodo}/>
+                    <TextField placeholder="Add new item" value={todoName} onChange={(e: FormEvent<HTMLInputElement|HTMLTextAreaElement>) =>{setTodoName(e.currentTarget.value);}}/>
                 </Stack.Item>
-                <PrimaryButton onClick={addTodo} >Add</PrimaryButton>
+                <PrimaryButton onClick={()=>{props.addTodo(todoName);setTodoName("");}} >Add</PrimaryButton>
             </Stack>
-            { props.todos.length > 0 ? props.todos.map((todo: ITodo) => (
-                <TodoItem todo={todo} key={todo.id} deleteTodo={props.deleteTodo} toggleTodo={props.toggleTodo} />
+            { props.todos.length > 0 ? props.todos.map((todo: Todo,index) => (
+                <TodoItem todo={todo} key={index} deleteTodo={props.deleteTodo} toggleTodo={props.toggleTodo} />
             )): 
             <Label>Todo list is empty...</Label>}
         </Stack>

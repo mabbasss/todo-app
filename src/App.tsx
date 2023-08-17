@@ -1,25 +1,28 @@
 import * as React from "react";
 import { useEffect, useState } from "react";
-import { ThemeProvider, Stack, Dialog, DialogType, DialogFooter, PrimaryButton, DefaultButton, ComboBox, IComboBoxOption, IComboBoxStyles } from "@fluentui/react";
+import { ThemeProvider, Stack, DialogType, DefaultButton, ComboBox, IComboBoxOption, IComboBoxStyles, IDialogContentProps } from "@fluentui/react";
 import TodoList from './Components/TodoList/TodoList';
-import { ITodo } from "./Interfaces/ITodo";
+import CustomModal from "./Components/CustomModal/CustomModal";
 
 const options: IComboBoxOption[] = [
   { key: 'all', text: 'All' },
   { key: 'completed', text: 'Completed' },
   { key: 'uncompleted', text: 'Active' },
 ];
+
+const dialogContentProps:IDialogContentProps={type:DialogType.normal,title:"Delete all",subText:"Are you sure you want to delete all items? This cannot be undone."}
+
 const comboBoxStyles: Partial<IComboBoxStyles> = { root: { maxWidth: 300 } };
 
 export const App: React.FunctionComponent = () => {
 
-  const [filterValue, setFilterValue] = useState<string | null>(null); // Added filterValue state
-  const [todos, setTodos] = useState<ITodo[]>(() => {
+  const [filterValue, setFilterValue] = useState<string | null>("all"); // Added filterValue state
+  const [openDeleteModal, setOpenModal] = useState(true);
+  const [todos, setTodos] = useState<Todo[]>(() => {
     const storedTodos = localStorage.getItem('todos');
     return storedTodos ? JSON.parse(storedTodos) : [];
   });
 
-  const [openDeleteModal, setOpenModal] = useState(true);
 
 
   const addTodo = (todoName: string) => {
@@ -44,6 +47,8 @@ export const App: React.FunctionComponent = () => {
   };
 
   const deleteTodo = (id: number) => {
+    console.log(id,"id from delete fun");
+  
     const newTasks = todos.filter((todo) => { return todo.id !== id });
     setTodos(newTasks);
   };
@@ -73,12 +78,13 @@ export const App: React.FunctionComponent = () => {
   }, [todos]);
 
   return (
+
+
     <ThemeProvider>
       <Stack horizontalAlign="center">
         <h1 className="m-5">Simple TODO App</h1>
-        <Stack className="ms-depth-64 p-4 mb-5" gap={20}>
+        <Stack className="ms-depth-64 p-4 mb-5" tokens={{childrenGap:20}}>
           <ComboBox
-            defaultSelectedKey="all" // Assuming 'all' key doesn't exist in todos
             placeholder="All"
             label="Filter by Status"
             allowFreeform={false}
@@ -90,20 +96,7 @@ export const App: React.FunctionComponent = () => {
           <DefaultButton onClick={() => setOpenModal(!openDeleteModal)}>Clear</DefaultButton>
           <TodoList todos={filteredTodos} addTodo={addTodo} deleteTodo={deleteTodo} toggleTodo={toggleTodo} />
         </Stack>
-        <Dialog
-          hidden={openDeleteModal}
-          dialogContentProps={{
-            type: DialogType.normal,
-            title: "Delete",
-            subText:
-              "Are you sure you want to delete all items? This cannot be undone."
-          }}
-        >
-          <DialogFooter>
-            <PrimaryButton text="Yes" onClick={() => { clearTodos() }} />
-            <DefaultButton text="No" onClick={() => { setOpenModal(true) }} />
-          </DialogFooter>
-        </Dialog>
+        <CustomModal openDeleteModal={openDeleteModal} setOpenModal={setOpenModal}  dialogContentProps={dialogContentProps} deleteTodoFuns={clearTodos}></CustomModal>
       </Stack>
     </ThemeProvider>
   );
