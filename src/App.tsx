@@ -26,7 +26,7 @@ export const App: React.FunctionComponent = () => {
 
 
   const addTodo = (todoName: string) => {
-    if (todoName != "") {
+    if (todoName !== "") {
       const newId = todos.length + 1;
       const newTodos = [...todos, { id: newId, name: todoName, complete: false }];
       setTodos(newTodos);
